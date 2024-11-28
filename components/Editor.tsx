@@ -5,7 +5,7 @@ import Layers from "./layers/layers"
 import ActiveImage from "./ActiveImage"
 import UploadForm from "./upload/upload-form"
 import { useLayerStore } from "@/lib/layer-store"
-import ImageToolbar from "./toolbar/image-toolbar"
+import ImageTool from "./toolbar/image-toolbar"
 
 const Editor = () => {
 
@@ -18,7 +18,7 @@ const Editor = () => {
           <ModeToggle />
         </div>
         <div className="flex flex-col gap-4">
-          {activeLayer.resourceType === "image" ? <ImageToolbar /> : null}
+          {activeLayer.resourceType === "image" ? <ImageTool /> : null}
         </div>
       </div>
       <UploadForm />

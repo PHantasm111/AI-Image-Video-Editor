@@ -1,10 +1,9 @@
 "use server"
 
-import { checkImageProcessing } from '@/lib/check-processing'
-import { actionClient } from '@/lib/safe-action'
-import { v2 as cloudinary } from 'cloudinary'
-import z from 'zod'
-
+import { checkImageProcessing } from "@/lib/check-processing"
+import { actionClient } from "@/lib/safe-action"
+import { v2 as cloudinary } from "cloudinary"
+import z from "zod"
 
 cloudinary.config({
     cloud_name: "druxpb8a5",
@@ -12,17 +11,20 @@ cloudinary.config({
     api_secret: process.env.CLOUDINARY_SECRET,
 })
 
-
-const genRemoveSchema = z.object({
-    prompt: z.string(),
+const bgRemovalSchema = z.object({
     activeImage: z.string(),
+    format: z.string(),
 })
 
-export const genRemove = actionClient.schema(genRemoveSchema)
-    .action(async ({ parsedInput: { activeImage, prompt } }) => {
-        // https://res.cloudinary.com/demo/image/upload/e_gen_remove:prompt_the person/docs/horse-with-rider.jpg
-        const parts = activeImage.split('/upload/')
-        const removeUrl = `${parts[0]}/upload/e_gen_remove:${prompt}/${parts[1]}`
+
+export const bgRemoval = actionClient.schema(bgRemovalSchema)
+    .action(async ({ parsedInput: { activeImage, format } }) => {
+
+        const form = activeImage.split(format)
+        const pngConvert = form[0] + "png"
+
+        const parts = pngConvert.split("/upload/")
+        const bgUrl = `${parts[0]}/upload/e_background_removal/${parts[1]}`
 
         // little check for the processing img
         let isProcessed = false
@@ -30,7 +32,7 @@ export const genRemove = actionClient.schema(genRemoveSchema)
         const delay = 500
 
         for (let attempt = 0; attempt < maxAttemps; attempt++) {
-            isProcessed = await checkImageProcessing(removeUrl)
+            isProcessed = await checkImageProcessing(bgUrl)
 
             // if the image is processed
             if (isProcessed) break
@@ -43,5 +45,5 @@ export const genRemove = actionClient.schema(genRemoveSchema)
             throw new Error("Image processing time out")
         }
         // if the image is processed
-        return { success: removeUrl }
+        return { success: bgUrl }
     })

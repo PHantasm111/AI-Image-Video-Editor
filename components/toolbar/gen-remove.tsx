@@ -28,14 +28,14 @@ export default function GenRemove() {
 
     return (
         <Popover>
-            <PopoverTrigger disabled={!activeLayer.url} asChild>
+            <PopoverTrigger disabled={!activeLayer?.url} asChild>
                 <Button variant="outline" className="p-8">
                     <span className="flex gap-1 items-center justify-center flex-col text-xs font-medium">
                         Content Aware <Eraser size={20} />
                     </span>
                 </Button>
             </PopoverTrigger>
-            <PopoverContent>
+            <PopoverContent className="w-full">
                 <div>
                     <h3>Smart AI Remove</h3>
                     <p className="text-sm text-muted-foreground">
@@ -47,17 +47,15 @@ export default function GenRemove() {
                     <Input
                         className="col-span-2 h-8"
                         value={activeTag}
-                        onChange={(e) => {
-                            setActiveTag(e.target.value)
-                        }}
+                        onChange={(e) => setActiveTag(e.target.value)}
                     />
                 </div>
                 <Button
                     onClick={async () => {
 
                         const newLayerId = crypto.randomUUID();
-
                         setGenerating(true);
+                        
                         const res = await genRemove({
                             prompt: activeTag,
                             activeImage: activeLayer.url!
@@ -65,19 +63,16 @@ export default function GenRemove() {
 
                         if (res?.data?.success) {
                             setGenerating(false);
-
-                            addLayer(
-                                {
+                            addLayer({
                                     id: newLayerId,
                                     url: res.data.success,
                                     format: activeLayer.format,
                                     width: activeLayer.width,
                                     height: activeLayer.height,
-                                    name: "gen-remove" + activeLayer.name,
+                                    name: "gen-removed-" + activeLayer.name,
                                     resourceType: "image",
                                     publicId: activeLayer.publicId
-                                }
-                            )
+                                })
                             setActiveLayer(newLayerId);
                         }
                     }}
